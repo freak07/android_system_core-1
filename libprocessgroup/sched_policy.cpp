@@ -53,10 +53,15 @@ int set_cpuset_policy(int tid, SchedPolicy policy) {
                            ? 0
                            : -1;
         case SP_FOREGROUND:
+            return SetTaskProfiles(tid, {"HighPerformance", "ProcessCapacityHigh",
+                                         "TimerSlackNormal"},
+                                         true)
+                           ? 0
+                           : -1;
         case SP_AUDIO_APP:
         case SP_AUDIO_SYS:
             return SetTaskProfiles(tid,
-                                   {"HighPerformance", "ProcessCapacityHigh", "HighIoPriority",
+                                   {"HighPerformance", "AudioAppCapacity", "HighIoPriority",
                                     "TimerSlackNormal"},
                                    true)
                            ? 0
@@ -136,6 +141,8 @@ int set_sched_policy(int tid, SchedPolicy policy) {
         case SP_BACKGROUND:
             return SetTaskProfiles(tid, {"HighEnergySaving", "TimerSlackHigh"}, true) ? 0 : -1;
         case SP_FOREGROUND:
+            return SetTaskProfiles(tid, {"HighPerformance", "TimerSlackNormal"}, true)
+                          ? 0 : -1;
         case SP_AUDIO_APP:
         case SP_AUDIO_SYS:
             return SetTaskProfiles(tid, {"HighPerformance", "TimerSlackNormal"}, true) ? 0 : -1;
@@ -198,6 +205,8 @@ int get_sched_policy(int tid, SchedPolicy* policy) {
         *policy = SP_TOP_APP;
     } else if (group == "restricted") {
         *policy = SP_RESTRICTED;
+    } else if (group == "audio-app") {
+        *policy = SP_AUDIO_APP;
     } else {
         errno = ERANGE;
         return -1;
